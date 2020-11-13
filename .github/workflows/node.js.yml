@@ -28,7 +28,7 @@ jobs:
     - run: npm run build --if-present
     - name: Install Node.js modules
       run: npm install
+    - run: npm link typescript
     - name: Run ESLint
       run: npx eslint . --ext .js,.jsx,.ts,.tsx
-    - run: npm link typescript
     - run: npm test
