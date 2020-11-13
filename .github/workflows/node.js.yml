@@ -29,6 +29,6 @@ jobs:
     - name: Install Node.js modules
       run: npm install
     - name: Run ESLint
-      run: eslint . --ext .js,.jsx,.ts,.tsx
+      run: npx eslint . --ext .js,.jsx,.ts,.tsx
     - run: npm link typescript
     - run: npm test
