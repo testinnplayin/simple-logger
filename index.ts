@@ -1,3 +1,3 @@
 export class Logger {
-    // Put cool code in here
+  // Put cool code in here
 }
