@@ -18,6 +18,7 @@
     "ts-node": "^9.0.0"
   },
   "scripts": {
+    "lint": "npm link typescript && npx eslint . --ext .js,.jsx,.ts,.tsx",
     "test": "jest"
   },
   "repository": {
