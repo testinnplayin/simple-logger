@@ -1,4 +1,4 @@
-import { unlinkSync } from "fs";
+import { existsSync, mkdirSync, unlinkSync } from "fs";
 import { join } from "path";
 
 import { TEST_LOG_DIR } from "./config";
@@ -7,9 +7,13 @@ import { doReadFile } from "./test-helpers";
 import logger from "../src/simple-logger";
 
 describe("#BasicLogger", () => {
-  const testFilePath = join(__dirname, TEST_LOG_DIR, "basic-test.json");
+  const testLogsDir = join(__dirname, TEST_LOG_DIR);
+  const testFilePath = join(testLogsDir, "basic-test.json");
 
   beforeAll(() => {
+    if (!existsSync(testLogsDir)) {
+      mkdirSync(join(__dirname, "logs"));
+    }
     logger.triggerLogger(testFilePath, { message: "Hello world!" });
   });
 
