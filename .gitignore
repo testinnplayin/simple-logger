@@ -1,5 +1,2 @@
 # Node modules
 /node_modules
-
-# Test log files
-/__tests__/logs
