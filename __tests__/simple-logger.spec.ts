@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, unlinkSync } from "fs";
 import { join } from "path";
 
 import { TEST_LOG_DIR } from "./config";
-import { doReadFile } from "./test-helpers";
+import { doReadFile, doReadDir } from "./test-helpers";
 
 import logger from "../src/simple-logger";
 
@@ -36,5 +36,16 @@ describe("#BasicLogger", () => {
 
     expect(data).toBe(expectedResult);
     done();
+  });
+
+  it("should open two files if logger triggered twice", async () => {
+    logger.triggerLogger(join(testLogsDir, "another-test.json"), {
+      message: "Hi again, world!",
+    });
+
+    const files = await doReadDir(join(testLogsDir));
+    expect(files).toHaveLength(2);
+    expect(files).toContain("another-test.json");
+    unlinkSync(join(testLogsDir, "another-test.json"));
   });
 });
