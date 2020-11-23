@@ -46,6 +46,19 @@ describe("#BasicLogger", () => {
     const files = await doReadDir(join(testLogsDir));
     expect(files).toHaveLength(2);
     expect(files).toContain("another-test.json");
+    expect(files).toContain("basic-test.json");
+
     unlinkSync(join(testLogsDir, "another-test.json"));
+  });
+
+  it("should overwrite file if it already exists", async () => {
+    logger.triggerLogger(testFilePath, { message: "Holà!!!!" });
+
+    const data = await doReadFile(testFilePath);
+    const expectedResult = JSON.stringify({
+      message: "Holà!!!!",
+    });
+
+    expect(data).toBe(expectedResult);
   });
 });
