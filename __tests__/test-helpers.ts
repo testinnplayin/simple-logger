@@ -12,12 +12,16 @@ import { readdir, readFile } from "fs";
  * @param {string} testFilePath - the test file's filepath
  * @returns a promise
  */
-function doReadFile(testFilePath: string): Promise<any> {
+function doReadFile(testFilePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    readFile(testFilePath, { encoding: "utf8" }, (err: any, data: string) => {
-      if (err) reject(err);
-      return resolve(data);
-    });
+    readFile(
+      testFilePath,
+      { encoding: "utf8" },
+      (err: NodeJS.ErrnoException | null, data: string) => {
+        if (err) reject(err);
+        return resolve(data);
+      }
+    );
   });
 }
 
@@ -26,9 +30,9 @@ function doReadFile(testFilePath: string): Promise<any> {
  * @param {string} dirPath - the test directory path
  * @returns a promise
  */
-function doReadDir(dirPath: string): Promise<any> {
+function doReadDir(dirPath: string): Promise<string[]> {
   return new Promise((resolve, reject) => {
-    readdir(dirPath, (err: any, files: any) => {
+    readdir(dirPath, (err: NodeJS.ErrnoException | null, files: string[]) => {
       if (err) reject(err);
       return resolve(files);
     });

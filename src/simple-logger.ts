@@ -8,14 +8,14 @@ export default {
   triggerLogger(
     filePath: string,
     messageTemplate: MessageTemplate
-  ): Promise<any> {
+  ): Promise<string> {
     console.log(messageTemplate.message);
 
     return new Promise((resolve, reject) => {
       writeFile(
         filePath,
         JSON.stringify(messageTemplate),
-        () => (err: any, data: any) => {
+        () => (err: NodeJS.ErrnoException | null, data: string) => {
           if (err) reject(err);
 
           resolve(data);
