@@ -4,28 +4,42 @@ interface MessageTemplate {
   message: string;
 }
 
-export default class BasicLogger {
-  options: any = {};
+export default {
+  /**
+   * Build a file name from a date time string and a temporary file name
+   * @param {string} dateTime - a datetime string in YYYY-MM-DD format
+   * @param {string | null} fileName - the temporary file name
+   * @returns a string in the format of 'my_file-YYYY-MM-DD'
+   */
+  buildFileName(dateTime: string, fileName: string | null): string {
+    if (!fileName) {
+      fileName = "my_file";
+    }
 
-  constructor(options: any) {
-    this.options = options;
-  }
+    return `${fileName}-${dateTime}.json`;
+  },
 
-  buildFilePath(logsDirPath: string, fileNameTemplate: string): string {
-    return `${logsDirPath}/${fileNameTemplate}`;
-  }
+  /**
+   * Build a file path from the log directory path and the file name
+   * @param {string} logsDir - the absolute path to the logs directory
+   * @param {string} fileName - the name of the file
+   * @returns an absolute path for the file path of the log file
+   */
+  buildFilePath(logsDir: string, fileName: string): string {
+    return `${logsDir}/${fileName}`;
+  },
 
-  static triggerLogger(
-    // filePath: string,
-    options: any,
+  /**
+   * Main function for writing a message to a file
+   * @param {string} filePath - absolute path to where file will be written
+   * @param {string} messageTemplate - message written in file
+   * @returns a Promise containing the message
+   */
+  triggerLogger(
+    filePath: string,
     messageTemplate: MessageTemplate
   ): Promise<string> {
     console.log(messageTemplate.message);
-    const newLogger = new BasicLogger(options);
-    const filePath = newLogger.buildFilePath(
-      options.logsDirPath,
-      options.fileNameTemplate
-    );
 
     return new Promise((resolve, reject) => {
       writeFile(
@@ -38,5 +52,5 @@ export default class BasicLogger {
         }
       );
     });
-  }
-}
+  },
+};

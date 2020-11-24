@@ -4,9 +4,9 @@ import { join } from "path";
 import { TEST_LOG_DIR } from "./config";
 import { doReadFile, doReadDir } from "./test-helpers";
 
-import BasicLogger from "../src/simple-logger";
+import logger from "../src/simple-logger";
 
-describe("#BasicBasicLogger", () => {
+describe("#BasicLogger", () => {
   const testLogsDir = join(__dirname, TEST_LOG_DIR);
   const testFilePath = join(testLogsDir, "basic-test.json");
 
@@ -14,11 +14,7 @@ describe("#BasicBasicLogger", () => {
     if (!existsSync(testLogsDir)) {
       mkdirSync(join(__dirname, "logs"));
     }
-    const options = {
-      logsDirPath: testLogsDir,
-      fileNameTemplate: "basic-test.json",
-    };
-    BasicLogger.triggerLogger(options, { message: "Hello world!" });
+    logger.triggerLogger(testFilePath, { message: "Hello world!" });
   });
 
   afterAll(() => {
@@ -42,12 +38,8 @@ describe("#BasicBasicLogger", () => {
     done();
   });
 
-  it("should open two files if BasicLogger triggered twice", async () => {
-    const options = {
-      logsDirPath: testLogsDir,
-      fileNameTemplate: "another-test.json",
-    };
-    BasicLogger.triggerLogger(options, {
+  it("should open two files if logger triggered twice", async () => {
+    logger.triggerLogger(join(testLogsDir, "another-test.json"), {
       message: "Hi again, world!",
     });
 
@@ -60,11 +52,7 @@ describe("#BasicBasicLogger", () => {
   });
 
   it("should overwrite file if it already exists", async () => {
-    const options = {
-      logsDirPath: testLogsDir,
-      fileNameTemplate: "basic-test.json",
-    };
-    BasicLogger.triggerLogger(options, { message: "Holà!!!!" });
+    logger.triggerLogger(testFilePath, { message: "Holà!!!!" });
 
     const data = await doReadFile(testFilePath);
     const expectedResult = JSON.stringify({
@@ -72,5 +60,26 @@ describe("#BasicBasicLogger", () => {
     });
 
     expect(data).toBe(expectedResult);
+  });
+
+  it("should build a file path from the logs directory and the file path name", () => {
+    const expectedFilePath = `${testLogsDir}/my-test-file.json`;
+    const result = logger.buildFilePath(testLogsDir, "my-test-file.json");
+
+    expect(result).toBe(expectedFilePath);
+  });
+
+  it("should build a default file name with date and extension", () => {
+    const expectedFileName = "my_file-2020-10-05.json";
+    const result = logger.buildFileName("2020-10-05", null);
+
+    expect(result).toBe(expectedFileName);
+  });
+
+  it("should build a json file if file name", () => {
+    const expectedFileName = "basic-test-2020-10-05.json";
+    const result = logger.buildFileName("2020-10-05", "basic-test");
+
+    expect(result).toBe(expectedFileName);
   });
 });
