@@ -4,9 +4,9 @@ import { join } from "path";
 import { TEST_LOG_DIR } from "./config";
 import { doReadFile, doReadDir } from "./test-helpers";
 
-import logger from "../src/simple-logger";
+import BasicLogger from "../src/simple-logger";
 
-describe("#BasicLogger", () => {
+describe("#BasicBasicLogger", () => {
   const testLogsDir = join(__dirname, TEST_LOG_DIR);
   const testFilePath = join(testLogsDir, "basic-test.json");
 
@@ -14,7 +14,11 @@ describe("#BasicLogger", () => {
     if (!existsSync(testLogsDir)) {
       mkdirSync(join(__dirname, "logs"));
     }
-    logger.triggerLogger(testFilePath, { message: "Hello world!" });
+    const options = {
+      logsDirPath: testLogsDir,
+      fileNameTemplate: "basic-test.json",
+    };
+    BasicLogger.triggerLogger(options, { message: "Hello world!" });
   });
 
   afterAll(() => {
@@ -38,8 +42,12 @@ describe("#BasicLogger", () => {
     done();
   });
 
-  it("should open two files if logger triggered twice", async () => {
-    logger.triggerLogger(join(testLogsDir, "another-test.json"), {
+  it("should open two files if BasicLogger triggered twice", async () => {
+    const options = {
+      logsDirPath: testLogsDir,
+      fileNameTemplate: "another-test.json",
+    };
+    BasicLogger.triggerLogger(options, {
       message: "Hi again, world!",
     });
 
@@ -52,7 +60,11 @@ describe("#BasicLogger", () => {
   });
 
   it("should overwrite file if it already exists", async () => {
-    logger.triggerLogger(testFilePath, { message: "Holà!!!!" });
+    const options = {
+      logsDirPath: testLogsDir,
+      fileNameTemplate: "basic-test.json",
+    };
+    BasicLogger.triggerLogger(options, { message: "Holà!!!!" });
 
     const data = await doReadFile(testFilePath);
     const expectedResult = JSON.stringify({
