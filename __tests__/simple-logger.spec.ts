@@ -9,33 +9,37 @@ import logger from "../src/simple-logger";
 describe("#BasicLogger", () => {
   const testLogsDir = join(__dirname, TEST_LOG_DIR);
   const testFilePath = join(testLogsDir, "basic-test.json");
+  const realDate = Date.now;
 
   beforeAll(() => {
     if (!existsSync(testLogsDir)) {
       mkdirSync(join(__dirname, "logs"));
     }
+    global.Date.now = jest.fn(() => new Date("2019-04-07T10:20:30Z").getTime());
     logger.triggerLogger(testFilePath, { message: "Hello world!" });
   });
 
   afterAll(() => {
     unlinkSync(testFilePath);
+    global.Date.now = realDate;
   });
 
-  it("should open a new JSON file when called", async (done) => {
+  it("should open a new JSON file when called", async () => {
     const data = await doReadFile(testFilePath);
 
     expect(data).toBeDefined();
-    done();
   });
 
-  it("should contain an expected JSON in file", async (done) => {
+  it("should contain an expected JSON in file", async () => {
     const data = await doReadFile(testFilePath);
-    const expectedResult = JSON.stringify({
-      message: "Hello world!",
-    });
+    const result = JSON.parse(data);
 
-    expect(data).toBe(expectedResult);
-    done();
+    const expectedResult = {
+      message: "Hello world!",
+      timestamp: "2019-04-07T10:20:30.000Z",
+      level: "INFO",
+    };
+    expect(result).toStrictEqual(expectedResult);
   });
 
   it("should open two files if logger triggered twice", async () => {
@@ -49,17 +53,6 @@ describe("#BasicLogger", () => {
     expect(files).toContain("basic-test.json");
 
     unlinkSync(join(testLogsDir, "another-test.json"));
-  });
-
-  it("should overwrite file if it already exists", async () => {
-    logger.triggerLogger(testFilePath, { message: "Holà!!!!" });
-
-    const data = await doReadFile(testFilePath);
-    const expectedResult = JSON.stringify({
-      message: "Holà!!!!",
-    });
-
-    expect(data).toBe(expectedResult);
   });
 
   it("should build a file path from the logs directory and the file path name", () => {
@@ -81,5 +74,16 @@ describe("#BasicLogger", () => {
     const result = logger.buildFileName("2020-10-05", "basic-test");
 
     expect(result).toBe(expectedFileName);
+  });
+
+  it("should build a message with timestamp, log level and message", () => {
+    const result = logger.buildMessage({ message: "Oops" });
+    const expectedResult = {
+      message: "Oops",
+      timestamp: "2019-04-07T10:20:30.000Z",
+      level: "INFO",
+    };
+
+    expect(result).toStrictEqual(expectedResult);
   });
 });
