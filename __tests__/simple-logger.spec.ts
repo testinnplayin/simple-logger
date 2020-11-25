@@ -2,7 +2,8 @@ import { existsSync, mkdirSync, unlinkSync } from "fs";
 import { join } from "path";
 
 import { TEST_LOG_DIR } from "./config";
-import { doReadFile, doReadDir } from "./test-helpers";
+import { doReadFile } from "./test-helpers";
+import { doReadDir } from "../src/utils";
 
 import logger from "../src/simple-logger";
 
@@ -62,16 +63,20 @@ describe("#BasicLogger", () => {
     expect(result).toBe(expectedFilePath);
   });
 
-  it("should build a default file name with date and extension", () => {
-    const expectedFileName = "my_file-2020-10-05.json";
-    const result = logger.buildFileName("2020-10-05", null);
+  it("should build a default file name with date, file number and extension", async () => {
+    const expectedFileName = "my_file-2020-10-05-1.json";
+    const result = await logger.buildFileName("2020-10-05", testLogsDir, null);
 
     expect(result).toBe(expectedFileName);
   });
 
-  it("should build a json file if file name", () => {
-    const expectedFileName = "basic-test-2020-10-05.json";
-    const result = logger.buildFileName("2020-10-05", "basic-test");
+  it("should build a json file if file name", async () => {
+    const expectedFileName = "basic-test-2020-10-05-1.json";
+    const result = await logger.buildFileName(
+      "2020-10-05",
+      testLogsDir,
+      "basic-test"
+    );
 
     expect(result).toBe(expectedFileName);
   });
