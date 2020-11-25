@@ -70,7 +70,7 @@ describe("#BasicLogger", () => {
     expect(result).toBe(expectedFileName);
   });
 
-  it("should build a json file if file name", async () => {
+  it("should build a json file if file name with date, file number and extension", async () => {
     const expectedFileName = "basic-test-2020-10-05-1.json";
     const result = await logger.buildFileName(
       "2020-10-05",

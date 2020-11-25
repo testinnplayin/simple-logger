@@ -27,7 +27,7 @@ export default {
    * @param dateTime - a datetime string in YYYY-MM-DD format
    * @param dirPath - the directory path to the log files
    * @param tempFileName - the temporary file name with 'my_file' as default
-   * @returns a string in the format of 'my_file-YYYY-MM-DD-i' where i in the incrementation
+   * @returns a string in the format of 'my_file-YYYY-MM-DD-i' where i is the incrementation
    */
   async buildFileName(
     dateTime: string,
