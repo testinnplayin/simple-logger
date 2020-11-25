@@ -5,7 +5,7 @@
  * 23/11/2020
  */
 
-import { readdir, readFile } from "fs";
+import { readFile } from "fs";
 
 /**
  * reads file at given test filepath
@@ -25,18 +25,4 @@ function doReadFile(testFilePath: string): Promise<string> {
   });
 }
 
-/**
- * reads contents of given directory
- * @param dirPath - the test directory path
- * @returns a promise
- */
-function doReadDir(dirPath: string): Promise<string[]> {
-  return new Promise((resolve, reject) => {
-    readdir(dirPath, (err: NodeJS.ErrnoException | null, files: string[]) => {
-      if (err) reject(err);
-      return resolve(files);
-    });
-  });
-}
-
-export { doReadFile, doReadDir };
+export { doReadFile };

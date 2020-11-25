@@ -1,5 +1,10 @@
 import { writeFile } from "fs";
+import { doReadDir } from "./utils";
 
+/**
+ * @enum LogLevel - the log levels for determining what gets logged
+ * contains INFO
+ */
 enum LogLevel {
   INFO = "INFO",
 }
@@ -20,15 +25,29 @@ export default {
   /**
    * Build a file name from a date time string and a temporary file name
    * @param dateTime - a datetime string in YYYY-MM-DD format
-   * @param fileName - the temporary file name with 'my_file' as default
-   * @returns a string in the format of 'my_file-YYYY-MM-DD'
+   * @param dirPath - the directory path to the log files
+   * @param tempFileName - the temporary file name with 'my_file' as default
+   * @returns a string in the format of 'my_file-YYYY-MM-DD-i' where i is the incrementation
    */
-  buildFileName(dateTime: string, fileName: string | null): string {
-    if (!fileName) {
-      fileName = "my_file";
+  async buildFileName(
+    dateTime: string,
+    dirPath: string,
+    tempFileName: string | null
+  ): Promise<string> {
+    let fileName = "my_file";
+
+    if (tempFileName) {
+      fileName = tempFileName;
     }
 
-    return `${fileName}-${dateTime}.json`;
+    fileName = `${fileName}-${dateTime}`;
+
+    const files: string[] = await doReadDir(dirPath);
+    const filesWSameName = files.filter((file) => file.includes(fileName));
+
+    fileName = `${fileName}-${filesWSameName.length + 1}`;
+
+    return `${fileName}.json`;
   },
 
   /**
@@ -41,6 +60,11 @@ export default {
     return `${logsDir}/${fileName}`;
   },
 
+  /**
+   * Build the message based on the MessageTemplate
+   * @param messageTemplate - the message template as input by user
+   * @returns the message template with timestamp and level
+   */
   buildMessage(messageTemplate: MessageTemplate): MessageTemplate {
     const timestamp: Date = new Date(Date.now());
 
