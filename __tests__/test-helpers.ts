@@ -9,7 +9,7 @@ import { readdir, readFile } from "fs";
 
 /**
  * reads file at given test filepath
- * @param {string} testFilePath - the test file's filepath
+ * @param testFilePath - the test file's filepath
  * @returns a promise
  */
 function doReadFile(testFilePath: string): Promise<string> {
@@ -27,7 +27,7 @@ function doReadFile(testFilePath: string): Promise<string> {
 
 /**
  * reads contents of given directory
- * @param {string} dirPath - the test directory path
+ * @param dirPath - the test directory path
  * @returns a promise
  */
 function doReadDir(dirPath: string): Promise<string[]> {
