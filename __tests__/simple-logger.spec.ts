@@ -91,25 +91,4 @@ describe("#BasicLogger", () => {
 
     expect(result).toStrictEqual(expectedResult);
   });
-
-  it("should build a file path from the logs directory and the file path name", () => {
-    const expectedFilePath = `${testLogsDir}/my-test-file.json`;
-    const result = logger.buildFilePath(testLogsDir, "my-test-file.json");
-
-    expect(result).toBe(expectedFilePath);
-  });
-
-  it("should build a default file name with date and extension", () => {
-    const expectedFileName = "my_file-2020-10-05.json";
-    const result = logger.buildFileName("2020-10-05", null);
-
-    expect(result).toBe(expectedFileName);
-  });
-
-  it("should build a json file if file name", () => {
-    const expectedFileName = "basic-test-2020-10-05.json";
-    const result = logger.buildFileName("2020-10-05", "basic-test");
-
-    expect(result).toBe(expectedFileName);
-  });
 });

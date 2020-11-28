@@ -60,15 +60,6 @@ export default {
     return `${logsDir}/${fileName}`;
   },
 
-  buildMessage(messageTemplate: MessageTemplate): MessageTemplate {
-    const timestamp: Date = new Date(Date.now());
-
-    messageTemplate.timestamp = timestamp.toISOString();
-    messageTemplate.level = LogLevel.INFO;
-
-    return messageTemplate;
-  },
-
   /**
    * Build the message based on the MessageTemplate
    * @param messageTemplate - the message template as input by user
