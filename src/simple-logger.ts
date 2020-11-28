@@ -75,20 +75,6 @@ export default {
   },
 
   /**
-   * Build the message based on the MessageTemplate
-   * @param messageTemplate - the message template as input by user
-   * @returns the message template with timestamp and level
-   */
-  buildMessage(messageTemplate: MessageTemplate): MessageTemplate {
-    const timestamp: Date = new Date(Date.now());
-
-    messageTemplate.timestamp = timestamp.toISOString();
-    messageTemplate.level = LogLevel.INFO;
-
-    return messageTemplate;
-  },
-
-  /**
    * Main function for writing a message to a file
    * @param filePath - absolute path to where file will be written
    * @param messageTemplate - message written in file
