@@ -5,11 +5,19 @@ import { TEST_LOG_DIR } from "./config";
 import { doReadFile } from "./test-helpers";
 import { doReadDir } from "../src/utils";
 
-import logger from "../src/simple-logger";
+import { LogLevels } from "../src/enums/log-levels";
+
+import { SimpleLogger } from "../src/simple-logger";
+
+const testLogsDir = join(__dirname, TEST_LOG_DIR);
+
+const logger = SimpleLogger.getLogger("test-logger", {
+  fileNameTemplate: "basic-test",
+  logsDirPath: testLogsDir,
+});
 
 describe("#BasicLogger", () => {
-  const testLogsDir = join(__dirname, TEST_LOG_DIR);
-  const testFilePath = join(testLogsDir, "basic-test.json");
+  const testFilePath = join(testLogsDir, "basic-test-2019-04-07-1.json");
   const realDate = Date.now;
 
   beforeAll(() => {
@@ -17,11 +25,12 @@ describe("#BasicLogger", () => {
       mkdirSync(join(__dirname, "logs"));
     }
     global.Date.now = jest.fn(() => new Date("2019-04-07T10:20:30Z").getTime());
-    logger.triggerLogger(testFilePath, { message: "Hello world!" });
+    logger.writeOutLog(testFilePath, { message: "Hello world!" });
   });
 
   afterAll(() => {
     unlinkSync(testFilePath);
+    unlinkSync(join(testLogsDir, "basic-test-2019-04-07-2.json"));
     global.Date.now = realDate;
   });
 
@@ -44,39 +53,38 @@ describe("#BasicLogger", () => {
   });
 
   it("should open two files if logger triggered twice", async () => {
-    logger.triggerLogger(join(testLogsDir, "another-test.json"), {
+    logger.writeOutLog(join(testLogsDir, "basic-test-2019-04-07-2.json"), {
       message: "Hi again, world!",
     });
 
     const files = await doReadDir(join(testLogsDir));
     expect(files).toHaveLength(2);
-    expect(files).toContain("another-test.json");
-    expect(files).toContain("basic-test.json");
+    expect(files).toContain("basic-test-2019-04-07-2.json");
+    expect(files).toContain("basic-test-2019-04-07-1.json");
 
-    unlinkSync(join(testLogsDir, "another-test.json"));
+    unlinkSync(join(testLogsDir, "basic-test-2019-04-07-2.json"));
   });
 
   it("should build a file path from the logs directory and the file path name", () => {
     const expectedFilePath = `${testLogsDir}/my-test-file.json`;
-    const result = logger.buildFilePath(testLogsDir, "my-test-file.json");
+    const result = logger.buildFilePath("my-test-file.json");
 
     expect(result).toBe(expectedFilePath);
   });
 
   it("should build a default file name with date, file number and extension", async () => {
+    const logger2 = SimpleLogger.getLogger("logger2", {
+      logsDirPath: testLogsDir,
+    });
     const expectedFileName = "my_file-2020-10-05-1.json";
-    const result = await logger.buildFileName("2020-10-05", testLogsDir, null);
+    const result = await logger2.buildFileName("2020-10-05");
 
     expect(result).toBe(expectedFileName);
   });
 
   it("should build a json file if file name with date, file number and extension", async () => {
     const expectedFileName = "basic-test-2020-10-05-1.json";
-    const result = await logger.buildFileName(
-      "2020-10-05",
-      testLogsDir,
-      "basic-test"
-    );
+    const result = await logger.buildFileName("2020-10-05");
 
     expect(result).toBe(expectedFileName);
   });
@@ -90,5 +98,21 @@ describe("#BasicLogger", () => {
     };
 
     expect(result).toStrictEqual(expectedResult);
+  });
+
+  it("should trigger writeOutLog if triggerLogger is called", async () => {
+    const buildFileNameSpy = jest.spyOn(logger, "buildFileName");
+    const buildFilePathSpy = jest.spyOn(logger, "buildFilePath");
+    const writeOutLogSpy = jest.spyOn(logger, "writeOutLog");
+
+    await logger.triggerLogger({
+      message: "Hi there!",
+      timestamp: "2019-04-07T10:20:30.000Z",
+      level: LogLevels.INFO,
+    });
+
+    expect(buildFileNameSpy).toBeCalledTimes(1);
+    expect(buildFilePathSpy).toBeCalledTimes(1);
+    expect(writeOutLogSpy).toBeCalledTimes(1);
   });
 });

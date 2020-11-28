@@ -10,13 +10,18 @@ import { readdir } from "fs";
 function buildDateTimeString(date: Date): string {
   const today = new Date(date);
 
-  // we have to add a 0 in our string for the day if day is less than 10
+  // we have to add a 0 in our string for the day/month if day/month is less than 10
   let day: number | string = today.getDate();
+  let month: number | string = today.getMonth() + 1;
   if (day < 10) {
     day = `0${day}`;
   }
 
-  return `${today.getFullYear()}-${today.getMonth() + 1}-${day}`;
+  if (month < 10) {
+    month = `0${month}`;
+  }
+
+  return `${today.getFullYear()}-${month}-${day}`;
 }
 
 /**
