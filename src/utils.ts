@@ -17,6 +17,7 @@ function buildDateTimeString(date: Date): string {
   }
 
   return `${today.getFullYear()}-${today.getMonth() + 1}-${day}`;
+
 }
 
 /**
