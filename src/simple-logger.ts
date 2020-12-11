@@ -1,3 +1,8 @@
+/**
+ * The main scripts for the simple logger
+ *
+ * @author R.Wood
+ */
 import { writeFile } from "fs";
 
 import { buildDateTimeString, doReadDir } from "./utils";
@@ -5,14 +10,29 @@ import { buildDateTimeString, doReadDir } from "./utils";
 import { LogLevels } from "./enums/log-levels";
 import { MessageTemplate } from "./interfaces/message-template";
 import { Options } from "./interfaces/options";
+import { LevelSelector } from "./logging-resources/level-selector";
 
+/**
+ * @class SimpleLogger
+ *
+ * Log events to a file
+ *
+ * @property loggerName - the name of the logger instance
+ * @property options - the options a logger can have
+ */
 export class SimpleLogger {
   loggerName: string;
   options: Options;
+  levelSelector: LevelSelector;
 
-  constructor(loggerName: string, options: Options) {
+  constructor(
+    loggerName: string,
+    options: Options,
+    levelSelector: LevelSelector
+  ) {
     this.loggerName = loggerName;
     this.options = options;
+    this.levelSelector = levelSelector;
   }
   /**
    * Build a file name from a date time string and a temporary file name
@@ -56,8 +76,11 @@ export class SimpleLogger {
   buildMessage(messageTemplate: MessageTemplate): MessageTemplate {
     const timestamp: Date = new Date(Date.now());
 
+    if (!messageTemplate.level) {
+      messageTemplate.level = LogLevels.INFO;
+    }
+
     messageTemplate.timestamp = timestamp.toISOString();
-    messageTemplate.level = LogLevels.INFO;
 
     return messageTemplate;
   }
@@ -80,15 +103,21 @@ export class SimpleLogger {
   writeOutLog(
     filePath: string,
     messageTemplate: MessageTemplate
-  ): Promise<void> {
+  ): Promise<void> | undefined {
     console.log(messageTemplate.message);
-    messageTemplate = this.buildMessage(messageTemplate);
-    return new Promise((resolve, reject) => {
-      writeFile(filePath, JSON.stringify(messageTemplate), (err): void => {
-        if (err) reject(err);
-        resolve();
+
+    const shouldWriteToFile = this.levelSelector.checkLevel(
+      messageTemplate.level
+    );
+    if (shouldWriteToFile) {
+      messageTemplate = this.buildMessage(messageTemplate);
+      return new Promise((resolve, reject) => {
+        writeFile(filePath, JSON.stringify(messageTemplate), (err): void => {
+          if (err) reject(err);
+          resolve();
+        });
       });
-    });
+    }
   }
 
   /**
@@ -97,7 +126,11 @@ export class SimpleLogger {
    * @param options - the options for the logger
    */
   static getLogger(loggerName: string, options: Options): SimpleLogger {
-    const newLogger = new SimpleLogger(loggerName, options);
+    if (!options.level) {
+      options.level = LogLevels.INFO;
+    }
+    const levelSelector = new LevelSelector(options.level);
+    const newLogger = new SimpleLogger(loggerName, options, levelSelector);
 
     return newLogger;
   }
