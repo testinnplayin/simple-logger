@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, unlinkSync } from "fs";
+import { existsSync, mkdirSync, rmdirSync } from "fs";
 import { join } from "path";
 
 import { TEST_LOG_DIR } from "./config";
@@ -29,8 +29,8 @@ describe("#BasicLogger", () => {
   });
 
   afterAll(() => {
-    unlinkSync(testFilePath);
-    unlinkSync(join(testLogsDir, "basic-test-2019-04-07-2.json"));
+    rmdirSync(testLogsDir, { recursive: true });
+
     global.Date.now = realDate;
   });
 
@@ -61,8 +61,6 @@ describe("#BasicLogger", () => {
     expect(files).toHaveLength(2);
     expect(files).toContain("basic-test-2019-04-07-2.json");
     expect(files).toContain("basic-test-2019-04-07-1.json");
-
-    unlinkSync(join(testLogsDir, "basic-test-2019-04-07-2.json"));
   });
 
   it("should build a file path from the logs directory and the file path name", () => {
@@ -114,5 +112,38 @@ describe("#BasicLogger", () => {
     expect(buildFileNameSpy).toBeCalledTimes(1);
     expect(buildFilePathSpy).toBeCalledTimes(1);
     expect(writeOutLogSpy).toBeCalledTimes(1);
+  });
+
+  it("should not log DEBUG level messages if logger is set to log INFO", async () => {
+    await logger.triggerLogger({
+      message: "Aloha there!",
+      timestamp: "2019-04-07T10:20:30.000Z",
+      level: LogLevels.DEBUG,
+    });
+    const expectedFileName = "my_file-2019-04-07-1.json";
+
+    const files = await doReadDir(testLogsDir);
+
+    expect(files).not.toContain(expectedFileName);
+  });
+
+  it("should log ERROR level messages if logger is set to log INFO", async () => {
+    await logger.triggerLogger({
+      message: "Bonjour!",
+      timestamp: "2019-04-07T10:20:30.000Z",
+      level: LogLevels.ERROR,
+    });
+    const expectedFileName = "basic-test-2019-04-07-4.json";
+    const expectedResult = JSON.stringify({
+      message: "Bonjour!",
+      timestamp: "2019-04-07T10:20:30.000Z",
+      level: "ERROR",
+    });
+
+    const files = await doReadDir(testLogsDir);
+    const data = await doReadFile(join(testLogsDir, expectedFileName));
+
+    expect(files).toContain(expectedFileName);
+    expect(data).toStrictEqual(expectedResult);
   });
 });
