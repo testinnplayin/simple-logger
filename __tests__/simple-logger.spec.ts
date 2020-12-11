@@ -105,7 +105,6 @@ describe("#BasicLogger", () => {
 
     await logger.triggerLogger({
       message: "Hi there!",
-      timestamp: "2019-04-07T10:20:30.000Z",
       level: LogLevels.INFO,
     });
 
@@ -117,7 +116,6 @@ describe("#BasicLogger", () => {
   it("should not log DEBUG level messages if logger is set to log INFO", async () => {
     await logger.triggerLogger({
       message: "Aloha there!",
-      timestamp: "2019-04-07T10:20:30.000Z",
       level: LogLevels.DEBUG,
     });
     const expectedFileName = "my_file-2019-04-07-1.json";
@@ -130,20 +128,19 @@ describe("#BasicLogger", () => {
   it("should log ERROR level messages if logger is set to log INFO", async () => {
     await logger.triggerLogger({
       message: "Bonjour!",
-      timestamp: "2019-04-07T10:20:30.000Z",
       level: LogLevels.ERROR,
     });
     const expectedFileName = "basic-test-2019-04-07-4.json";
-    const expectedResult = JSON.stringify({
+    const expectedResult = {
       message: "Bonjour!",
       timestamp: "2019-04-07T10:20:30.000Z",
       level: "ERROR",
-    });
+    };
 
     const files = await doReadDir(testLogsDir);
     const data = await doReadFile(join(testLogsDir, expectedFileName));
 
     expect(files).toContain(expectedFileName);
-    expect(data).toStrictEqual(expectedResult);
+    expect(JSON.parse(data)).toStrictEqual(expectedResult);
   });
 });
