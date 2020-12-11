@@ -1,27 +1,39 @@
+/**
+ * The main scripts for the simple logger
+ *
+ * @author R.Wood
+ */
 import { writeFile } from "fs";
-import { doReadDir } from "./utils";
+
+import { buildDateTimeString, doReadDir } from "./utils";
+
+import { LogLevels } from "./enums/log-levels";
+import { MessageTemplate } from "./interfaces/message-template";
+import { Options } from "./interfaces/options";
+import { LevelSelector } from "./logging-resources/level-selector";
 
 /**
- * @enum LogLevel - the log levels for determining what gets logged
- * contains INFO
+ * @class SimpleLogger
+ *
+ * Log events to a file
+ *
+ * @property loggerName - the name of the logger instance
+ * @property options - the options a logger can have
  */
-enum LogLevel {
-  INFO = "INFO",
-}
+export class SimpleLogger {
+  loggerName: string;
+  options: Options;
+  levelSelector: LevelSelector;
 
-/**
- * @interface MessageTemplate - template for a SimpleLogger message
- */
-interface MessageTemplate {
-  /** timestamp in UTC ISODate format */
-  timestamp?: string;
-  /** log level, by default 'INFO' */
-  level?: LogLevel;
-  /** actual text message */
-  message: string;
-}
-
-export default {
+  constructor(
+    loggerName: string,
+    options: Options,
+    levelSelector: LevelSelector
+  ) {
+    this.loggerName = loggerName;
+    this.options = options;
+    this.levelSelector = levelSelector;
+  }
   /**
    * Build a file name from a date time string and a temporary file name
    * @param dateTime - a datetime string in YYYY-MM-DD format
@@ -29,26 +41,22 @@ export default {
    * @param tempFileName - the temporary file name with 'my_file' as default
    * @returns a string in the format of 'my_file-YYYY-MM-DD-i' where i is the incrementation
    */
-  async buildFileName(
-    dateTime: string,
-    dirPath: string,
-    tempFileName: string | null
-  ): Promise<string> {
+  async buildFileName(dateTime: string): Promise<string> {
     let fileName = "my_file";
 
-    if (tempFileName) {
-      fileName = tempFileName;
+    if (this.options.fileNameTemplate) {
+      fileName = this.options.fileNameTemplate;
     }
 
     fileName = `${fileName}-${dateTime}`;
 
-    const files: string[] = await doReadDir(dirPath);
+    const files: string[] = await doReadDir(this.options.logsDirPath);
     const filesWSameName = files.filter((file) => file.includes(fileName));
 
     fileName = `${fileName}-${filesWSameName.length + 1}`;
 
     return `${fileName}.json`;
-  },
+  }
 
   /**
    * Build a file path from the log directory path and the file name
@@ -56,9 +64,9 @@ export default {
    * @param fileName - the name of the file
    * @returns an absolute path for the file path of the log file
    */
-  buildFilePath(logsDir: string, fileName: string): string {
-    return `${logsDir}/${fileName}`;
-  },
+  buildFilePath(fileName: string): string {
+    return `${this.options.logsDirPath}/${fileName}`;
+  }
 
   /**
    * Build the message based on the MessageTemplate
@@ -68,35 +76,62 @@ export default {
   buildMessage(messageTemplate: MessageTemplate): MessageTemplate {
     const timestamp: Date = new Date(Date.now());
 
+    if (!messageTemplate.level) {
+      messageTemplate.level = LogLevels.INFO;
+    }
+
     messageTemplate.timestamp = timestamp.toISOString();
-    messageTemplate.level = LogLevel.INFO;
 
     return messageTemplate;
-  },
+  }
+
+  async triggerLogger(messageTemplate: MessageTemplate): Promise<void> {
+    const now = new Date(Date.now());
+    const dateTime = buildDateTimeString(now);
+    const newFileName = await this.buildFileName(dateTime);
+    const newFilePath = this.buildFilePath(newFileName);
+
+    return await this.writeOutLog(newFilePath, messageTemplate);
+  }
 
   /**
    * Main function for writing a message to a file
    * @param filePath - absolute path to where file will be written
    * @param messageTemplate - message written in file
-   * @returns a Promise containing the message
+   * @returns a Promise
    */
-  triggerLogger(
+  writeOutLog(
     filePath: string,
     messageTemplate: MessageTemplate
-  ): Promise<string> {
+  ): Promise<void> | undefined {
     console.log(messageTemplate.message);
-    messageTemplate = this.buildMessage(messageTemplate);
 
-    return new Promise((resolve, reject) => {
-      writeFile(
-        filePath,
-        JSON.stringify(messageTemplate),
-        () => (err: NodeJS.ErrnoException | null, data: string) => {
+    const shouldWriteToFile = this.levelSelector.checkLevel(
+      messageTemplate.level
+    );
+    if (shouldWriteToFile) {
+      messageTemplate = this.buildMessage(messageTemplate);
+      return new Promise((resolve, reject) => {
+        writeFile(filePath, JSON.stringify(messageTemplate), (err): void => {
           if (err) reject(err);
+          resolve();
+        });
+      });
+    }
+  }
 
-          resolve(data);
-        }
-      );
-    });
-  },
-};
+  /**
+   * Get a logger by its name - this is a temporary version of this function before things are handled in a tidy export file
+   * @param loggerName - the name of the logger
+   * @param options - the options for the logger
+   */
+  static getLogger(loggerName: string, options: Options): SimpleLogger {
+    if (!options.level) {
+      options.level = LogLevels.INFO;
+    }
+    const levelSelector = new LevelSelector(options.level);
+    const newLogger = new SimpleLogger(loggerName, options, levelSelector);
+
+    return newLogger;
+  }
+}
