@@ -7,6 +7,7 @@ import { writeFile } from "fs";
 
 import { buildDateTimeString, doReadDir } from "./utils";
 
+import { LogColors } from "./logging-resources/log-colors";
 import { LogLevels } from "./enums/log-levels";
 import { MessageTemplate } from "./interfaces/message-template";
 import { Options } from "./interfaces/options";
@@ -34,6 +35,29 @@ export class SimpleLogger {
     this.options = options;
     this.levelSelector = levelSelector;
   }
+
+  debug(messageStr: string): void {
+    console.debug(LogColors.DEBUG(messageStr));
+  }
+
+  error(messageStr: string): void {
+    console.error(LogColors.ERROR(messageStr));
+  }
+
+  async info(messageStr: string): Promise<void> {
+    (this.options.hasColor) ?
+      console.info(LogColors.INFO(messageStr)) : console.info(messageStr);
+
+    await this.triggerLogger({
+      message: messageStr,
+      level: LogLevels.INFO
+    });
+  }
+
+  warning(messageStr: string): void {
+    console.warn(LogColors.WARNING(messageStr));
+  }
+
   /**
    * Build a file name from a date time string and a temporary file name
    * @param dateTime - a datetime string in YYYY-MM-DD format
@@ -104,8 +128,6 @@ export class SimpleLogger {
     filePath: string,
     messageTemplate: MessageTemplate
   ): Promise<void> | undefined {
-    console.log(messageTemplate.message);
-
     const shouldWriteToFile = this.levelSelector.checkLevel(
       messageTemplate.level
     );
@@ -129,6 +151,11 @@ export class SimpleLogger {
     if (!options.level) {
       options.level = LogLevels.INFO;
     }
+
+    if (!options.hasColor) {
+      options.hasColor = false;
+    }
+
     const levelSelector = new LevelSelector(options.level);
     const newLogger = new SimpleLogger(loggerName, options, levelSelector);
 

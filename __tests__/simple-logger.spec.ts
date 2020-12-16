@@ -8,12 +8,19 @@ import { doReadDir } from "../src/utils";
 import { LogLevels } from "../src/enums/log-levels";
 
 import { SimpleLogger } from "../src/simple-logger";
+import { LogColors } from "../src/logging-resources/log-colors";
 
 const testLogsDir = join(__dirname, TEST_LOG_DIR);
 
 const logger = SimpleLogger.getLogger("test-logger", {
   fileNameTemplate: "basic-test",
+  hasColor: true,
   logsDirPath: testLogsDir,
+});
+
+const noColorsLogger = SimpleLogger.getLogger("another-logger", {
+  fileNameTemplate: "no-colors-test",
+  logsDirPath: testLogsDir
 });
 
 describe("#BasicLogger", () => {
@@ -142,5 +149,36 @@ describe("#BasicLogger", () => {
 
     expect(files).toContain(expectedFileName);
     expect(JSON.parse(data)).toStrictEqual(expectedResult);
+  });
+
+  it("should log something in green if 'INFO' method used and if options set to colorized", async () => {
+    const infoSpy = jest.spyOn(LogColors, "INFO");
+
+    await logger.info("Hai there!");
+
+    expect(infoSpy).toBeCalledWith("Hai there!");
+  });
+
+  it("should log something in blue if 'DEBUG' method used and if options set to colorized", () => {
+    const debugSpy = jest.spyOn(LogColors, "DEBUG");
+    logger.debug("Hai there!");
+
+    expect(debugSpy).toBeCalledWith("Hai there!");
+  });
+
+  it("should log something in red if 'ERROR' method used and if options set to colorized", () => {
+    const errorSpy = jest.spyOn(LogColors, "ERROR");
+
+    logger.error("Hai there!");
+
+    expect(errorSpy).toBeCalledWith("Hai there!");
+  });
+
+  it("should log something in orange if 'WARNING' method used and if options set to colorized", () => {
+    const warnSpy = jest.spyOn(LogColors, "WARNING");
+
+    logger.warning("Hai there!");
+
+    expect(warnSpy).toBeCalledWith("Hai there!");
   });
 });
