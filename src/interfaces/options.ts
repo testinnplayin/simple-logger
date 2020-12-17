@@ -1,8 +1,10 @@
 /**
- * Options interface
+ * @module options - Options interface
  *
  * @author R.Wood
  * Date: 28/11/2020
+ * 
+ * @requires LogLevels @see module:log-levels
  */
 
 import { LogLevels } from "../enums/log-levels";

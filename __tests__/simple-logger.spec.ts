@@ -153,32 +153,104 @@ describe("#BasicLogger", () => {
 
   it("should log something in green if 'INFO' method used and if options set to colorized", async () => {
     const infoSpy = jest.spyOn(LogColors, "INFO");
+    const triggerSpy = jest.spyOn(logger, 'triggerLogger');
 
-    await logger.info("Hai there!");
+    const testMsg = "Hai there!";
 
-    expect(infoSpy).toBeCalledWith("Hai there!");
+    await logger.info(testMsg);
+
+    expect(infoSpy).toBeCalledWith(testMsg);
+    expect(triggerSpy).toBeCalledWith({
+      message: testMsg,
+      level: LogLevels.INFO,
+      timestamp: "2019-04-07T10:20:30.000Z",
+    });
+  });
+
+  it("should log something in default color if 'INFO' method used and if options set to not colorized", async () => {
+    const infoSpy = jest.spyOn(LogColors, "INFO");
+
+    const testMsg = "Hello world!";
+
+    await noColorsLogger.info(testMsg);
+
+    expect(infoSpy).not.toBeCalled();
   });
 
   it("should log something in blue if 'DEBUG' method used and if options set to colorized", () => {
     const debugSpy = jest.spyOn(LogColors, "DEBUG");
-    logger.debug("Hai there!");
+    const triggerSpy = jest.spyOn(logger, "triggerLogger");
+
+    const testMsg = "Hai there!";
+
+    logger.debug(testMsg);
 
     expect(debugSpy).toBeCalledWith("Hai there!");
+    expect(triggerSpy).toBeCalledWith({
+      message: testMsg,
+      level: LogLevels.DEBUG
+    });
   });
 
-  it("should log something in red if 'ERROR' method used and if options set to colorized", () => {
+  it("should log something in default color if 'DEBUG' method used and if options set to not colorized", async () => {
+    const debugSpy = jest.spyOn(LogColors, "DEBUG");
+
+    const testMsg = "Hello world!";
+
+    await noColorsLogger.debug(testMsg);
+
+    expect(debugSpy).not.toBeCalled();
+  });
+
+  it("should log something in red if 'ERROR' method used and if options set to colorized", async () => {
+    const errorSpy = jest.spyOn(LogColors, "ERROR");
+    const triggerSpy = jest.spyOn(logger, "triggerLogger");
+
+    const testMsg = "Hai there!";
+
+    await logger.error(testMsg);
+
+    expect(errorSpy).toBeCalledWith(testMsg);
+    expect(triggerSpy).toBeCalledWith({
+      message: testMsg,
+      level: LogLevels.ERROR,
+      timestamp: "2019-04-07T10:20:30.000Z"
+    });
+  });
+
+  it("should log something in default color if 'ERROR' method used and if options set to not colorized", async () => {
     const errorSpy = jest.spyOn(LogColors, "ERROR");
 
-    logger.error("Hai there!");
+    const testMsg = "Hello world!";
 
-    expect(errorSpy).toBeCalledWith("Hai there!");
+    await noColorsLogger.error(testMsg);
+
+    expect(errorSpy).not.toBeCalled();
   });
 
-  it("should log something in orange if 'WARNING' method used and if options set to colorized", () => {
+  it("should log something in orange if 'WARNING' method used and if options set to colorized", async () => {
     const warnSpy = jest.spyOn(LogColors, "WARNING");
+    const triggerSpy = jest.spyOn(logger, "triggerLogger");
 
-    logger.warning("Hai there!");
+    const testMsg = "Hai there!";
 
-    expect(warnSpy).toBeCalledWith("Hai there!");
+    await logger.warning(testMsg);
+
+    expect(warnSpy).toBeCalledWith(testMsg);
+    expect(triggerSpy).toBeCalledWith({
+      message: testMsg,
+      level: LogLevels.WARNING,
+      timestamp: "2019-04-07T10:20:30.000Z",
+    });
+  });
+
+  it("should log something in default color if 'WARNING' method used and if options set to not colorized", async () => {
+    const warningSpy = jest.spyOn(LogColors, "WARNING");
+
+    const testMsg = "Hello world!";
+
+    await noColorsLogger.warning(testMsg);
+
+    expect(warningSpy).not.toBeCalled();
   });
 });

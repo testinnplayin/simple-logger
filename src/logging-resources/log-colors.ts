@@ -1,3 +1,12 @@
+/**
+ * @module log-colors - contains color associations for log levels
+ * 
+ * @author R.Wood
+ * Date: 16/12/2020
+ * 
+ * @requires chalk, cf. https://www.npmjs.com/package/chalk
+ */
+
 import chalk from "chalk";
 
 /**
