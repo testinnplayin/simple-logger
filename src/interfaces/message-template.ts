@@ -3,7 +3,7 @@
  *
  * @author R.Wood
  * Date: 28/11/2020
- * 
+ *
  * @requires LogLevels @see module:log-levels
  */
 

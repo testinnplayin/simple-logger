@@ -3,7 +3,7 @@
  *
  * @author: R.Wood
  * 25/11/2020
- * 
+ *
  * @requires readdir from Node.js file system, cf. https://nodejs.org/dist/latest-v14.x/docs/api/fs.html
  */
 

@@ -20,7 +20,7 @@ const logger = SimpleLogger.getLogger("test-logger", {
 
 const noColorsLogger = SimpleLogger.getLogger("another-logger", {
   fileNameTemplate: "no-colors-test",
-  logsDirPath: testLogsDir
+  logsDirPath: testLogsDir,
 });
 
 describe("#BasicLogger", () => {
@@ -153,7 +153,7 @@ describe("#BasicLogger", () => {
 
   it("should log something in green if 'INFO' method used and if options set to colorized", async () => {
     const infoSpy = jest.spyOn(LogColors, "INFO");
-    const triggerSpy = jest.spyOn(logger, 'triggerLogger');
+    const triggerSpy = jest.spyOn(logger, "triggerLogger");
 
     const testMsg = "Hai there!";
 
@@ -188,7 +188,7 @@ describe("#BasicLogger", () => {
     expect(debugSpy).toBeCalledWith("Hai there!");
     expect(triggerSpy).toBeCalledWith({
       message: testMsg,
-      level: LogLevels.DEBUG
+      level: LogLevels.DEBUG,
     });
   });
 
@@ -214,7 +214,7 @@ describe("#BasicLogger", () => {
     expect(triggerSpy).toBeCalledWith({
       message: testMsg,
       level: LogLevels.ERROR,
-      timestamp: "2019-04-07T10:20:30.000Z"
+      timestamp: "2019-04-07T10:20:30.000Z",
     });
   });
 

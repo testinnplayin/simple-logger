@@ -3,7 +3,7 @@
  *
  * @author R.Wood
  * 17/12/2020
- * 
+ *
  * @requires writeFile from Node.js file system cf. https://nodejs.org/dist/latest-v14.x/docs/api/fs.html
  * @requires buildDateTimeString @requires doReadDir @see module:utils
  * @requires LogColors @see module:log-colors
@@ -80,7 +80,7 @@ export class SimpleLogger {
   async error(messageStr: string): Promise<void> {
     this.options.hasColor
       ? console.log(LogColors.ERROR(messageStr))
-      : console.error(messageStr);
+      : console.log(messageStr);
 
     await this.triggerLogger({
       message: messageStr,

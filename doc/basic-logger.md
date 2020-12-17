@@ -32,11 +32,14 @@ Here is an example of all available options:
 
 ```javascript
 {
+    hasColor: true,
     level: 'DEBUG',
     logsDirPath: 'my_project/logs',
     fileNameTemplate: 'debug-messages'
 }
 ```
+
+* `hasColor` - when true, the logger will log messages out to the console with colors. See [below](#colors) for the color scheme.
 
 * `level` - this is the level at which the logger will start writing to a `JSON` file. Please see the [log levels](#levels) section for more information. It is optional with a default value of `INFO`.
 
@@ -78,3 +81,18 @@ What is written to the json file is something that takes on the form of:
 * `message`: This is a message defined by the developer.
 
 * `level`: This is the log level of the message.
+
+<a name="colors"></a>
+# Colors
+
+You can choose to have the logger log messages to the console with colors if desired by turning this feature on with `hasColor` in the options. By default, it's `false`.
+
+Once on, it will log colors to the console as follows.
+
+| Level | Color |
+--- | --- |
+| DEBUG | Blue |
+| ERROR | Red |
+| INFO | Green|
+| WARNING | Orange |
+
