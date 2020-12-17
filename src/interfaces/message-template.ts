@@ -1,8 +1,10 @@
 /**
- * Message template interface for the logger
+ * @module message-template - Message template interface for the logger
  *
  * @author R.Wood
  * Date: 28/11/2020
+ *
+ * @requires LogLevels @see module:log-levels
  */
 
 import { LogLevels } from "../enums/log-levels";

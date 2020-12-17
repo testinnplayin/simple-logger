@@ -1,8 +1,10 @@
 /**
- * LevelSelector class module, handles everything related to levels
+ * @module level-selector - LevelSelector class module, handles everything related to levels
  *
  * @author R.Wood
  * Date: 11/12/2020
+ *
+ * @requires LogLevels @see module:log-levels
  */
 
 import { LogLevels } from "../enums/log-levels";
@@ -14,6 +16,7 @@ import { LogLevels } from "../enums/log-levels";
  *
  * @property level - DEBUG, INFO, WARNING, or ERROR
  * @property levelOrder (static and private) - an array showing priority of writing to file based on level (DEBUG is most permissive, ERROR is most restrictive)
+ * @method checkLevel
  */
 export class LevelSelector {
   level: LogLevels;

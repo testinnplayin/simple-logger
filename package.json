@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "A simple logger",
   "main": "index.ts",
-  "dependencies": {},
+  "dependencies": {
+    "chalk": "^4.1.0"
+  },
   "devDependencies": {
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
