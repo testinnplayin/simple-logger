@@ -1,5 +1,5 @@
 /**
- * Log levels used in the logger
+ * @module log-levels - Log levels used in the logger
  *
  * @author R.Wood
  * Date: 28/11/2020

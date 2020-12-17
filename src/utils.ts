@@ -1,12 +1,19 @@
 /**
- * Contains utility functions
+ * @module utils - Contains utility functions
  *
- * Author: R.Wood
+ * @author: R.Wood
  * 25/11/2020
+ * 
+ * @requires readdir from Node.js file system, cf. https://nodejs.org/dist/latest-v14.x/docs/api/fs.html
  */
 
 import { readdir } from "fs";
 
+/**
+ * @function buildDateTimeString - Build a date-time string for message template
+ * @param date - a Date object
+ * @returns a date in format "YYYY-MM-DD"
+ */
 function buildDateTimeString(date: Date): string {
   const today = new Date(date);
 
@@ -25,7 +32,7 @@ function buildDateTimeString(date: Date): string {
 }
 
 /**
- * reads contents of given directory
+ * @function doReadDir - Read contents of given directory
  * @param dirPath - the test directory path
  * @returns a promise
  */
