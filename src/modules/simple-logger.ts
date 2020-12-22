@@ -14,13 +14,13 @@
  */
 import { writeFile } from "fs";
 
-import { buildDateTimeString, doReadDir } from "./utils";
+import { buildDateTimeString, doReadDir } from "../utils";
 
-import { LogColors } from "./logging-resources/log-colors";
-import { LogLevels } from "./enums/log-levels";
-import { MessageTemplate } from "./interfaces/message-template";
-import { Options } from "./interfaces/options";
-import { LevelSelector } from "./logging-resources/level-selector";
+import { LogColors } from "../logging-resources/log-colors";
+import { LogLevels } from "../enums/log-levels";
+import { MessageTemplate } from "../interfaces/message-template";
+import { Options } from "../interfaces/options";
+import { LevelSelector } from "../logging-resources/level-selector";
 
 /**
  * @class SimpleLogger
@@ -46,12 +46,17 @@ export class SimpleLogger {
   options: Options;
   levelSelector: LevelSelector;
 
-  constructor(
-    loggerName: string,
-    options: Options,
-    levelSelector: LevelSelector
-  ) {
+  constructor(loggerName: string, options: Options) {
     this.loggerName = loggerName;
+    if (!options.level) {
+      options.level = LogLevels.INFO;
+    }
+
+    if (!options.hasColor) {
+      options.hasColor = false;
+    }
+
+    const levelSelector = new LevelSelector(options.level);
     this.options = options;
     this.levelSelector = levelSelector;
   }
@@ -214,18 +219,18 @@ export class SimpleLogger {
    * @param loggerName - the name of the logger
    * @param options - the options for the logger
    */
-  static getLogger(loggerName: string, options: Options): SimpleLogger {
-    if (!options.level) {
-      options.level = LogLevels.INFO;
-    }
+  // static getLogger(loggerName: string, options: Options): SimpleLogger {
+  //   if (!options.level) {
+  //     options.level = LogLevels.INFO;
+  //   }
 
-    if (!options.hasColor) {
-      options.hasColor = false;
-    }
+  //   if (!options.hasColor) {
+  //     options.hasColor = false;
+  //   }
 
-    const levelSelector = new LevelSelector(options.level);
-    const newLogger = new SimpleLogger(loggerName, options, levelSelector);
+  //   const levelSelector = new LevelSelector(options.level);
+  //   const newLogger = new SimpleLogger(loggerName, options, levelSelector);
 
-    return newLogger;
-  }
+  //   return newLogger;
+  // }
 }

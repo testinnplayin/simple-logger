@@ -1,44 +1,37 @@
-import { existsSync, mkdirSync, rmdirSync } from "fs";
 import { join } from "path";
 
-import { TEST_LOG_DIR } from "./config";
-import { doReadFile } from "./test-helpers";
+import { BASE_TEST_FILE_NAME, TEST_LOG_DIR } from "./config";
+import { cleanUpTestFiles, doReadFile, setUpTestFile } from "./test-helpers";
 import { doReadDir } from "../src/utils";
 
 import { LogLevels } from "../src/enums/log-levels";
 
-import { SimpleLogger } from "../src/simple-logger";
+import { SimpleLogger } from "../src/modules/simple-logger";
 import { LogColors } from "../src/logging-resources/log-colors";
 
 const testLogsDir = join(__dirname, TEST_LOG_DIR);
 
-const logger = SimpleLogger.getLogger("test-logger", {
+const logger = new SimpleLogger("test-logger", {
   fileNameTemplate: "basic-test",
   hasColor: true,
   logsDirPath: testLogsDir,
 });
 
-const noColorsLogger = SimpleLogger.getLogger("another-logger", {
+const noColorsLogger = new SimpleLogger("another-logger", {
   fileNameTemplate: "no-colors-test",
   logsDirPath: testLogsDir,
 });
 
 describe("#BasicLogger", () => {
-  const testFilePath = join(testLogsDir, "basic-test-2019-04-07-1.json");
-  const realDate = Date.now;
+  const primaryTestFileName = `${BASE_TEST_FILE_NAME}-1.json`;
+  const testFilePath = join(testLogsDir, primaryTestFileName);
 
   beforeAll(() => {
-    if (!existsSync(testLogsDir)) {
-      mkdirSync(join(__dirname, "logs"));
-    }
-    global.Date.now = jest.fn(() => new Date("2019-04-07T10:20:30Z").getTime());
-    logger.writeOutLog(testFilePath, { message: "Hello world!" });
+    setUpTestFile(logger, testLogsDir);
   });
 
   afterAll(() => {
-    rmdirSync(testLogsDir, { recursive: true });
-
-    global.Date.now = realDate;
+    cleanUpTestFiles(testLogsDir);
   });
 
   it("should open a new JSON file when called", async () => {
@@ -60,14 +53,15 @@ describe("#BasicLogger", () => {
   });
 
   it("should open two files if logger triggered twice", async () => {
-    logger.writeOutLog(join(testLogsDir, "basic-test-2019-04-07-2.json"), {
+    const secondTestFileName = `${BASE_TEST_FILE_NAME}-2.json`;
+    logger.writeOutLog(join(testLogsDir, secondTestFileName), {
       message: "Hi again, world!",
     });
 
     const files = await doReadDir(join(testLogsDir));
     expect(files).toHaveLength(2);
-    expect(files).toContain("basic-test-2019-04-07-2.json");
-    expect(files).toContain("basic-test-2019-04-07-1.json");
+    expect(files).toContain(secondTestFileName);
+    expect(files).toContain(primaryTestFileName);
   });
 
   it("should build a file path from the logs directory and the file path name", () => {
@@ -78,7 +72,7 @@ describe("#BasicLogger", () => {
   });
 
   it("should build a default file name with date, file number and extension", async () => {
-    const logger2 = SimpleLogger.getLogger("logger2", {
+    const logger2 = new SimpleLogger("logger2", {
       logsDirPath: testLogsDir,
     });
     const expectedFileName = "my_file-2020-10-05-1.json";
@@ -137,7 +131,7 @@ describe("#BasicLogger", () => {
       message: "Bonjour!",
       level: LogLevels.ERROR,
     });
-    const expectedFileName = "basic-test-2019-04-07-4.json";
+    const expectedFileName = `${BASE_TEST_FILE_NAME}-4.json`;
     const expectedResult = {
       message: "Bonjour!",
       timestamp: "2019-04-07T10:20:30.000Z",
